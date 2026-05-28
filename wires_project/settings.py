@@ -37,8 +37,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # 3rd party
+    'rest_framework',
+    'allauth',
+    'allauth.account',
+    'auth_kit',
+    'drf_spectacular',
+    
     # Local
     'accounts.apps.AccountsConfig',
+    'api1.apps.Api1Config',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'wires_project.urls'
@@ -76,8 +86,14 @@ WSGI_APPLICATION = 'wires_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db', # set in docker-compose.yml
+        'PORT': 5432,
     }
 }
 
@@ -119,3 +135,34 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'auth_kit.authentication.JWTCookieAuthentication',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Wires Project Documentation',
+    'DESCRIPTION': 'API documentation with authentication',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+AUTH_KIT = {
+    # ===================================================================
+    # CORE AUTHENTICATION SETTINGS
+    # ===================================================================
+    'AUTH_TYPE': 'jwt',
+    'USE_AUTH_COOKIE': True,
+
+    # ===================================================================
+    # COOKIE CONFIGURATION
+    # ===================================================================
+    'AUTH_COOKIE_SECURE': True,
+    'AUTH_COOKIE_HTTPONLY': True,
+    'AUTH_COOKIE_SAMESITE': 'Lax',
+    'AUTH_COOKIE_DOMAIN': None,
+}
